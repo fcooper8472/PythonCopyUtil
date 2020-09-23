@@ -26,6 +26,7 @@ directory_containing_csv_file = os.path.dirname(os.path.realpath(file_name))
 # Create an empty list of files to process that will be filled by reading the csv file
 paths_to_files = []
 file_names = []
+file_identifiers = []
 
 # Read the CSV file
 with open(file_name, 'r') as csv_file:
@@ -39,6 +40,7 @@ with open(file_name, 'r') as csv_file:
 
         # Get the third column of the line (e.g. "1970_July1970_July281970_Page01")
         file_identifier = line[2]
+        file_identifiers.append(file_identifier)
 
         # Split that string by the underscore character
         directory_parts = file_identifier.split('_')
@@ -54,7 +56,7 @@ directory_to_copy_into = os.path.join(directory_containing_csv_file, 'new_dir')
 os.makedirs(directory_to_copy_into, exist_ok=True)
 
 # Loop over all the paths & files we've extracted from the CSV file
-for path, filename in zip(paths_to_files, file_names):
+for path, filename, identifier in zip(paths_to_files, file_names, file_identifiers):
 
     # Warn if the directory isn't found
     if not os.path.isdir(path):
@@ -73,8 +75,11 @@ for path, filename in zip(paths_to_files, file_names):
             # Get the full path to the file, including the file extension
             full_path_to_file = os.path.join(path, file)
 
+            # Create a new unique file name
+            new_file_name = os.path.join(directory_to_copy_into, f'{identifier}_{file}')
+
             # Perform the file copy
-            shutil.copy(full_path_to_file, directory_to_copy_into)
+            shutil.copy(full_path_to_file, new_file_name)
 
             # Mark that we have successfully copied it
             copied_file = True
